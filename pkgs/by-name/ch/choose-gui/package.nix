@@ -23,7 +23,7 @@ stdenv.mkDerivation rec {
 
   buildPhase = ''
     runHook preBuild
-    xcodebuild -arch ${stdenv.hostPlatform.darwinArch} -configuration Release SYMROOT="./output" build
+    xcodebuild -configuration Release SYMROOT="./output" HOME="$(mktemp -d)" build
     cp ./output/Release/choose choose
     runHook postBuild
   '';
