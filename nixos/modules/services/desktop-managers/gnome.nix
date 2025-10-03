@@ -140,6 +140,22 @@ in
         description = "Enable GNOME desktop manager.";
       };
 
+      gnome-shell = mkOption {
+        type = types.package;
+        description = ''
+          GNOME shell package to use.
+        '';
+        default = pkgs.gnome-shell;
+      };
+
+      gnome-session = mkOption {
+        type = types.package;
+        description = ''
+          GNOME session package to use.
+        '';
+        default = pkgs.gnome-session;
+      };
+
       sessionPath = mkOption {
         default = [ ];
         type = types.listOf types.package;
@@ -162,7 +178,7 @@ in
             favorite-apps=[ 'firefox.desktop', 'org.gnome.Calendar.desktop' ]
           '''
         '';
-        description = "List of desktop files to put as favorite apps into pkgs.gnome-shell. These need to be installed somehow globally.";
+        description = "List of desktop files to put as favorite apps into gnome-shell. These need to be installed somehow globally.";
       };
 
       extraGSettingsOverrides = mkOption {
@@ -177,7 +193,7 @@ in
         description = "List of packages for which gsettings are overridden.";
       };
 
-      debug = mkEnableOption "pkgs.gnome-session debug messages";
+      debug = mkEnableOption "gnome-session debug messages";
 
       flashback = {
         enableMetacity = mkEnableOption "the standard GNOME Flashback session with Metacity";
@@ -254,7 +270,7 @@ in
       services.gnome.core-shell.enable = true;
       services.gnome.core-apps.enable = mkDefault true;
 
-      services.displayManager.sessionPackages = [ pkgs.gnome-session.sessions ];
+      services.displayManager.sessionPackages = [ serviceCfg.desktopManager.gnome.gnome-session.sessions ];
 
       environment.extraInit = ''
         ${lib.concatMapStrings (p: ''
@@ -347,7 +363,7 @@ in
         pkgs.xdg-desktop-portal-gnome
         pkgs.xdg-desktop-portal-gtk
       ];
-      xdg.portal.configPackages = mkDefault [ pkgs.gnome-session ];
+      xdg.portal.configPackages = mkDefault [ serviceCfg.desktopManager.gnome.gnome-session ];
 
       networking.networkmanager.enable = mkDefault true;
 
@@ -367,7 +383,7 @@ in
 
     (lib.mkIf serviceCfg.core-shell.enable {
       services.desktopManager.gnome.sessionPath = [
-        pkgs.gnome-shell
+        serviceCfg.desktopManager.gnome.gnome-shell
       ];
 
       services.colord.enable = mkDefault true;
@@ -382,8 +398,8 @@ in
       services.system-config-printer.enable = (lib.mkIf config.services.printing.enable (mkDefault true));
 
       systemd.packages = [
-        pkgs.gnome-session
-        pkgs.gnome-shell
+        serviceCfg.desktopManager.gnome.gnome-session
+        serviceCfg.desktopManager.gnome.gnome-shell
       ];
 
       services.udev.packages = [
@@ -420,7 +436,7 @@ in
       environment.systemPackages =
         let
           mandatoryPackages = [
-            pkgs.gnome-shell
+            serviceCfg.desktopManager.gnome.gnome-shell
           ];
           optionalPackages = [
             pkgs.adwaita-icon-theme
